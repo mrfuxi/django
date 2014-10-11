@@ -98,6 +98,23 @@ class OutputWrapper(object):
         self._out.write(force_str(style_func(msg)))
 
 
+class Progress(object):
+    """
+    Writes a progress of a task using OutputWrapper
+    """
+
+    def __init__(self, out, indicator="."):
+        self._out = out
+        self._inidcator = indicator
+
+    def step(self):
+        self._out.write(self._inidcator, ending="")
+        self._out.flush()
+
+    def done(self, msg=""):
+        self._out.write(msg)
+
+
 class BaseCommand(object):
     """
     The base class from which all management commands ultimately

@@ -9,7 +9,7 @@ import zipfile
 from django.apps import apps
 from django.conf import settings
 from django.core import serializers
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand, CommandError, Progress
 from django.core.management.color import no_style
 from django.db import (connections, router, transaction, DEFAULT_DB_ALIAS,
       IntegrityError, DatabaseError)
@@ -120,6 +120,8 @@ class Command(BaseCommand):
         """
         Loads fixtures files for a given label.
         """
+
+        progress = Progress(self.stdout)
         for fixture_file, fixture_dir, fixture_name in self.find_fixtures(fixture_label):
             _, ser_fmt, cmp_fmt = self.parse_name(os.path.basename(fixture_file))
             open_method, mode = self.compression_formats[cmp_fmt]
@@ -150,6 +152,12 @@ class Command(BaseCommand):
                                 'error_msg': force_text(e)
                             },)
                             raise
+
+                    if self.verbosity >= 3:
+                        progress.step()
+
+                if self.verbosity >= 3:
+                    progress.done(" OK")
 
                 self.loaded_object_count += loaded_objects_in_fixture
                 self.fixture_object_count += objects_in_fixture
